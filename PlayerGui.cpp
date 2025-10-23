@@ -12,6 +12,12 @@ void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFi
 {
     playerAudio.getNextAudioBlock(bufferToFill);
 }
+if (isRepeating && transportSource.getCurrentPosition() >= transportSource.getLengthInSeconds())
+ {
+     transportSource.setPosition(0.0);
+     transportSource.start();
+ }
+ get next AudioBlack
 
 void PlayerGUI::releaseResources()
 {
@@ -129,6 +135,7 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
     if (slider == &volumeSlider)
         playerAudio.setGain((float)slider->getValue());
 }
+
 
 
 
