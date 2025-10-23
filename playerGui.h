@@ -26,6 +26,8 @@ private:
     juce::TextButton stopButton{ "Stop" };
     juce::TextButton gotostartButton{ "start" };
     juce::TextButton muteButton{ "Mute" };
+    juce::TextButton repeatButton{ "Repeat: Off" };
+    bool isRepeating = false;
     juce::Slider volumeSlider;
 
     std::unique_ptr<juce::FileChooser> fileChooser;
@@ -36,4 +38,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
 };
+
 
