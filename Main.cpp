@@ -1,48 +1,107 @@
+#pragma once
 #include <JuceHeader.h>
-#include "MainComponent.h"
-
-// Our application class
-class SimpleAudioPlayer : public juce::JUCEApplication
+#include "playerAudio.h"
+#include "playerGui.h"
+class PlayerGUI : public juce::Component,
+    public juce::Button::Listener,
+    public juce::Slider::Listener
 {
 public:
-    const juce::String getApplicationName() override { return "Simple Audio Player"; }
-    const juce::String getApplicationVersion() override { return "1.0"; }
+    PlayerGUI();
+    ~PlayerGUI() override;
 
-    void initialise(const juce::String&) override
-    {
-        // Create and show the main window
-        mainWindow = std::make_unique<MainWindow>(getApplicationName());
-    }
+    void resized() override;
+    void paint(juce::Graphics& g) override;
 
-    void shutdown() override
-    {
-        mainWindow = nullptr; // Clean up
-    }
+    void prepareToPlay(int samplesPerBlockExpected, double sampleRate);
+    void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill);
+    void releaseResources();
 
 private:
-    // The main window of the app
-    class MainWindow : public juce::DocumentWindow
+    PlayerAudio playerAudio;
+
+    
+    juce::TextButton loadButton{ "Load Files" };
+    juce::TextButton restartButton{ "Restart" };
+    juce::TextButton stopButton{ "Stop" };
+    juce::TextButton gotostartButton{ "start" };
+    juce::TextButton muteButton{ "Mute" };
+    juce::TextButton repeatButton{ "repeat: off" };
+
+    
+    juce::TextButton prevButton{ "Previous" };
+    juce::TextButton nextButton{ "Next" };
+    juce::TextButton clearPlaylistButton{ "Clear Playlist" };
+
+    juce::Slider volumeSlider;
+
+    
+    juce::Label metadataLabel;
+    juce::TextEditor metadataDisplay;
+
+    
+    juce::Label playlistLabel;
+    juce::ListBox playlistBox;
+
+    std::unique_ptr<juce::FileChooser> fileChooser;
+
+    bool isRepeating = false;
+
+  
+    void buttonClicked(juce::Button* button) override;
+    void sliderValueChanged(juce::Slider* slider) override;
+
+   
+    void updateMetadataDisplay();
+    void updatePlaylist();
+
+    
+    class PlaylistModel : public juce::ListBoxModel
     {
     public:
-        MainWindow(juce::String name)
-            : DocumentWindow(name,
-                juce::Colours::lightgrey,
-                DocumentWindow::allButtons)
+        PlaylistModel(PlayerGUI& owner) : owner(owner) {}
+
+        int getNumRows() override
         {
-            setUsingNativeTitleBar(true);
-            setContentOwned(new MainComponent(), true); // MainComponent = our UI + logic
-            centreWithSize(800, 400);
-            setVisible(true);
+            return owner.playerAudio.getPlaylistSize();
         }
 
-        void closeButtonPressed() override
+        void paintListBoxItem(int rowNumber, juce::Graphics& g,
+            int width, int height, bool rowIsSelected) override
         {
-            juce::JUCEApplication::getInstance()->systemRequestedQuit();
+            if (rowIsSelected)
+                g.fillAll(juce::Colours::lightblue);
+            else
+                g.fillAll(juce::Colours::white);
+
+            g.setColour(juce::Colours::black);
+            g.setFont(14.0f);
+
+            juce::String itemText = owner.playerAudio.getPlaylistItemName(rowNumber);
+            if (rowNumber == owner.playerAudio.getCurrentPlaylistIndex())
+                itemText = "▶ " + itemText;
+
+            g.drawText(itemText, 4, 0, width - 4, height, juce::Justification::centredLeft);
         }
+
+        void listBoxItemClicked(int row, const juce::MouseEvent&) override
+        {
+            owner.playerAudio.playFileAtIndex(row);
+            owner.updateMetadataDisplay();
+            owner.updatePlaylist();
+        }
+
+        void deleteKeyPressed(int row) override
+        {
+            owner.playerAudio.removePlaylistItem(row);
+            owner.updatePlaylist();
+        }
+
+    private:
+        PlayerGUI& owner;
     };
 
-    std::unique_ptr<MainWindow> mainWindow;
-};
+    PlaylistModel playlistModel;
 
-// This macro starts the app
-START_JUCE_APPLICATION(SimpleAudioPlayer)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
+};
