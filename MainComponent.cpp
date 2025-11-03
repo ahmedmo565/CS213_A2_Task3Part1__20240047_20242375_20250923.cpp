@@ -4,7 +4,7 @@ MainComponent::MainComponent()
 {
     
     addAndMakeVisible(player);
-    setSize(500, 250);
+    setSize(800, 400);
     setAudioChannels(0, 2);
 }
 
@@ -32,6 +32,5 @@ void MainComponent::resized()
 {
     player.setBounds(getLocalBounds());
 }
-
 
 
