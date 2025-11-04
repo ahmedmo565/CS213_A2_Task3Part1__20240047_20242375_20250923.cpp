@@ -1,6 +1,3 @@
-
-
-
 #include "playerGui.h"
 
 void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
@@ -23,7 +20,7 @@ void PlayerGUI::paint(juce::Graphics& g)
     g.fillAll(juce::Colours::darkgrey);
 }
 
-PlayerGUI::PlayerGUI() : playlistModel(*this)
+PlayerGUI::PlayerGUI() : playlistModel(*this),playerAudio(), waveForm(playerAudio)
 {
     
     for (auto* btn : { &loadButton, &restartButton, &stopButton, &gotostartButton,
@@ -38,7 +35,15 @@ PlayerGUI::PlayerGUI() : playlistModel(*this)
     volumeSlider.setValue(0.5);
     volumeSlider.addListener(this);
     addAndMakeVisible(volumeSlider);
+    
+    // Speed slider
+    speedSlider.setRange(0.1, 2.0, 0.01);
+    speedSlider.setValue(1.0);
+    speedSlider.setTextValueSuffix("x");
+    speedSlider.addListener(this);
+    addAndMakeVisible(speedSlider);
 
+    addAndMakeVisible(waveForm);
     
     metadataLabel.setText("File Information:", juce::dontSendNotification);
     metadataLabel.setColour(juce::Label::textColourId, juce::Colours::white);
@@ -61,6 +66,8 @@ PlayerGUI::PlayerGUI() : playlistModel(*this)
     playlistBox.setModel(&playlistModel);
     playlistBox.setColour(juce::ListBox::backgroundColourId, juce::Colours::white);
     addAndMakeVisible(playlistBox);
+
+    addAndMakeVisible(waveForm);
 }
 
 void PlayerGUI::resized()
@@ -77,17 +84,20 @@ void PlayerGUI::resized()
     clearPlaylistButton.setBounds(860, y, 100, 40);
 
     volumeSlider.setBounds(20, 80, getWidth() - 40, 30);
-
+    speedSlider.setBounds(20, 120, getWidth() - 40, 30);
+    
+    waveForm.setBounds(20, 160, getWidth() - 40, 100);
     
     int playlistWidth = getWidth() / 2 - 30;
     int metadataWidth = getWidth() - playlistWidth - 60;
 
-    metadataLabel.setBounds(20, 130, metadataWidth, 25);
-    metadataDisplay.setBounds(20, 160, metadataWidth, 200);
+    metadataLabel.setBounds(20, 280, metadataWidth, 25);
+    metadataDisplay.setBounds(20, 305, metadataWidth, 200);
 
-    playlistLabel.setBounds(metadataWidth + 40, 130, playlistWidth, 25);
-    playlistBox.setBounds(metadataWidth + 40, 160, playlistWidth, 200);
+    playlistLabel.setBounds(metadataWidth + 40, 280, playlistWidth, 25);
+    playlistBox.setBounds(metadataWidth + 40, 305, playlistWidth, 200);
 }
+ 
 
 PlayerGUI::~PlayerGUI()
 {
@@ -192,6 +202,8 @@ void PlayerGUI::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &volumeSlider)
         playerAudio.setGain((float)slider->getValue());
+    if (slider == &speedSlider)
+        playerAudio.setSpeed((float)slider->getValue());
 }
 
 void PlayerGUI::updateMetadataDisplay()
@@ -227,6 +239,7 @@ void PlayerGUI::updatePlaylist()
     playlistBox.updateContent();
     playlistBox.repaint();
 }
+
 
 
 
