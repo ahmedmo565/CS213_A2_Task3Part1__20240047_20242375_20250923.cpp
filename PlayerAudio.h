@@ -38,6 +38,8 @@ public:
     juce::String getPlaylistItemName(int index) const;
     juce::File getPlaylistFile(int index) const;
     void removePlaylistItem(int index);
+    void setSpeed(double s);
+    juce::AudioThumbnail& getAudioThumbnail();
 
 private:
     juce::AudioFormatManager formatManager;
@@ -55,9 +57,14 @@ private:
     float previousVolume = 1.0f;
     bool isRepeating = false;
 
+    std::unique_ptr<juce::ResamplingAudioSource>resampleSource;
+    juce::AudioThumbnailCache thumbnailCache;
+    juce::AudioThumbnail audioThumbnail;
+
     void extractMetadata(juce::AudioFormatReader* reader, const juce::File& file);
     juce::String formatTime(double seconds);
     bool loadFileInternal(const juce::File& file);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerAudio)
 };
+
