@@ -36,7 +36,6 @@ PlayerGUI::PlayerGUI() : playlistModel(*this),playerAudio(), waveForm(playerAudi
     volumeSlider.addListener(this);
     addAndMakeVisible(volumeSlider);
     
-    // Speed slider
     speedSlider.setRange(0.1, 2.0, 0.01);
     speedSlider.setValue(1.0);
     speedSlider.setTextValueSuffix("x");
@@ -67,7 +66,6 @@ PlayerGUI::PlayerGUI() : playlistModel(*this),playerAudio(), waveForm(playerAudi
     playlistBox.setColour(juce::ListBox::backgroundColourId, juce::Colours::white);
     addAndMakeVisible(playlistBox);
 
-    addAndMakeVisible(waveForm);
 }
 
 void PlayerGUI::resized()
@@ -239,6 +237,7 @@ void PlayerGUI::updatePlaylist()
     playlistBox.updateContent();
     playlistBox.repaint();
 }
+
 
 
 
