@@ -3,6 +3,7 @@
 #include "PlayerAudio.h"
 
 PlayerAudio::PlayerAudio()
+:thumbnailCache(5), audioThumbnail(512, formatManager, thumbnailCache)
 {
     formatManager.registerBasicFormats();
 }
@@ -13,12 +14,21 @@ PlayerAudio::~PlayerAudio()
 
 void PlayerAudio::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
-    transportSource.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    resampleSource = std::make_unique<juce::ResamplingAudioSource>(&transportSource, false);
+    resampleSource->prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    transportSource.getNextAudioBlock(bufferToFill);
+    
+    if (resampleSource)
+    {
+        resampleSource->getNextAudioBlock(bufferToFill);
+    }
+    else
+    {
+        transportSource.getNextAudioBlock(bufferToFill);
+    }
 
     // Handle end of track and auto-advance to next in playlist
     if (!playlist.isEmpty() &&
@@ -32,6 +42,7 @@ void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferTo
 void PlayerAudio::releaseResources()
 {
     transportSource.releaseResources();
+    resampleSource->releaseResources();
 }
 
 bool PlayerAudio::loadFile(const juce::File& file)
@@ -61,7 +72,9 @@ bool PlayerAudio::loadFileInternal(const juce::File& file)
                 0,
                 nullptr,
                 reader->sampleRate);
-
+                transportSource.start();
+                audioThumbnail.clear();
+                audioThumbnail.setSource(new juce::FileInputSource(file));
             currentFile = file;
             extractMetadata(reader, file);
 
@@ -256,7 +269,13 @@ double PlayerAudio::getLength() const
 {
     return transportSource.getLengthInSeconds();
 }
-
+void PlayerAudio::setSpeed(double s)
+{
+    if (resampleSource)
+    {
+        resampleSource->setResamplingRatio(s);
+    }
+}
 void PlayerAudio::start()
 {
     transportSource.start();
@@ -295,4 +314,8 @@ void PlayerAudio::setRepeat(bool shouldRepeat)
 bool PlayerAudio::isRepeatEnabled() const
 {
     return isRepeating;
+}
+juce::AudioThumbnail& PlayerAudio::getAudioThumbnail()
+{
+    return audioThumbnail;
 }
