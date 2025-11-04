@@ -2,6 +2,7 @@
 #include <JuceHeader.h>
 #include "playerAudio.h"
 #include "playerGui.h"
+#include "WaveForm.h"
 class PlayerGUI : public juce::Component,
     public juce::Button::Listener,
     public juce::Slider::Listener
@@ -34,6 +35,7 @@ private:
     juce::TextButton clearPlaylistButton{ "Clear Playlist" };
 
     juce::Slider volumeSlider;
+    juce::Slider speedSlider;
 
     
     juce::Label metadataLabel;
@@ -50,7 +52,7 @@ private:
   
     void buttonClicked(juce::Button* button) override;
     void sliderValueChanged(juce::Slider* slider) override;
-
+    WaveForm waveForm;
    
     void updateMetadataDisplay();
     void updatePlaylist();
@@ -105,3 +107,4 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PlayerGUI)
 };
+
