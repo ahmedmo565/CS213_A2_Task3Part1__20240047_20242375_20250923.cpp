@@ -1,9 +1,7 @@
-﻿
-
-#include "PlayerAudio.h"
+﻿#include "PlayerAudio.h"
 
 PlayerAudio::PlayerAudio()
-:thumbnailCache(5), audioThumbnail(512, formatManager, thumbnailCache)
+    :thumbnailCache(5), audioThumbnail(512, formatManager, thumbnailCache)
 {
     formatManager.registerBasicFormats();
 }
@@ -20,7 +18,6 @@ void PlayerAudio::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 
 void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    
     if (resampleSource)
     {
         resampleSource->getNextAudioBlock(bufferToFill);
@@ -30,7 +27,16 @@ void PlayerAudio::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferTo
         transportSource.getNextAudioBlock(bufferToFill);
     }
 
-    // Handle end of track and auto-advance to next in playlist
+    if (isRepeating && transportSource.getCurrentPosition() >= transportSource.getLengthInSeconds() - 0.1)
+    {
+        transportSource.setPosition(0.0);
+    }
+
+    if (abLoopEnabled && transportSource.getCurrentPosition() >= abEnd - 0.05)
+    {
+        transportSource.setPosition(abStart);
+    }
+
     if (!playlist.isEmpty() &&
         transportSource.getCurrentPosition() >= transportSource.getLengthInSeconds() - 0.1 &&
         !transportSource.isPlaying())
@@ -72,9 +78,9 @@ bool PlayerAudio::loadFileInternal(const juce::File& file)
                 0,
                 nullptr,
                 reader->sampleRate);
-                transportSource.start();
-                audioThumbnail.clear();
-                audioThumbnail.setSource(new juce::FileInputSource(file));
+            transportSource.start();
+            audioThumbnail.clear();
+            audioThumbnail.setSource(new juce::FileInputSource(file));
             currentFile = file;
             extractMetadata(reader, file);
 
@@ -90,18 +96,15 @@ void PlayerAudio::extractMetadata(juce::AudioFormatReader* reader, const juce::F
 
     juce::StringPairArray metaData = reader->metadataValues;
 
-   
     juce::String title = metaData.getValue("Title", "");
     juce::String artist = metaData.getValue("Artist", "");
     juce::String album = metaData.getValue("Album", "");
     juce::String year = metaData.getValue("Year", "");
     juce::String comment = metaData.getValue("Comment", "");
 
-    
     if (title.isEmpty())
         title = file.getFileNameWithoutExtension();
 
-   
     if (artist.isEmpty())
         artist = metaData.getValue("Author", "");
     if (artist.isEmpty())
@@ -239,7 +242,6 @@ void PlayerAudio::removePlaylistItem(int index)
     }
 }
 
-
 void PlayerAudio::play()
 {
     transportSource.start();
@@ -269,6 +271,7 @@ double PlayerAudio::getLength() const
 {
     return transportSource.getLengthInSeconds();
 }
+
 void PlayerAudio::setSpeed(double s)
 {
     if (resampleSource)
@@ -276,6 +279,7 @@ void PlayerAudio::setSpeed(double s)
         resampleSource->setResamplingRatio(s);
     }
 }
+
 void PlayerAudio::start()
 {
     transportSource.start();
@@ -315,7 +319,27 @@ bool PlayerAudio::isRepeatEnabled() const
 {
     return isRepeating;
 }
+
+void PlayerAudio::setabLoop(double startTime, double endTime)
+{
+    abStart = startTime;
+    abEnd = endTime;
+    abLoopEnabled = true;
+}
+
+void PlayerAudio::clearabLoop()
+{
+    abLoopEnabled = false;
+}
+
+bool PlayerAudio::isabLoopEnabled() const
+{
+    return abLoopEnabled;
+}
+
 juce::AudioThumbnail& PlayerAudio::getAudioThumbnail()
 {
     return audioThumbnail;
 }
+
+
