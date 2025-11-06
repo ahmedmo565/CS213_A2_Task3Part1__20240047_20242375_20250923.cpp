@@ -1,6 +1,19 @@
 #pragma once
 #include <JuceHeader.h>
 
+struct Theme
+{
+    juce::Colour backgroundColour;
+    juce::Colour buttonColour;
+    juce::Colour buttonTextColour;
+    juce::Colour sliderColour;
+    juce::Colour sliderThumbColour;
+    juce::Colour labelColour;
+    juce::Colour waveformColour;
+    juce::Colour playlistBackground;
+    juce::Colour playlistText;
+};
+
 class PlayerAudio
 {
 public:
@@ -25,6 +38,10 @@ public:
     void setRepeat(bool shouldRepeat);
     bool isRepeatEnabled() const;
 
+    void setabLoop(double startTime, double endTime);
+    void clearabLoop();
+    bool isabLoopEnabled() const;
+
     juce::String getCurrentFileName() const;
     juce::StringArray getMetadata() const;
 
@@ -41,12 +58,14 @@ public:
     void setSpeed(double s);
     juce::AudioThumbnail& getAudioThumbnail();
 
+    Theme getCurrentTheme() const { return currentTheme; }
+    void setTheme(const Theme& newTheme) { currentTheme = newTheme; }
+
 private:
     juce::AudioFormatManager formatManager;
     std::unique_ptr<juce::AudioFormatReaderSource> readerSource;
     juce::AudioTransportSource transportSource;
 
-    
     juce::File currentFile;
     juce::StringArray metadata;
 
@@ -57,9 +76,15 @@ private:
     float previousVolume = 1.0f;
     bool isRepeating = false;
 
-    std::unique_ptr<juce::ResamplingAudioSource>resampleSource;
+    double abStart = 0.0;
+    double abEnd = 0.0;
+    bool abLoopEnabled = false;
+
+    std::unique_ptr<juce::ResamplingAudioSource> resampleSource;
     juce::AudioThumbnailCache thumbnailCache;
     juce::AudioThumbnail audioThumbnail;
+
+    Theme currentTheme;
 
     void extractMetadata(juce::AudioFormatReader* reader, const juce::File& file);
     juce::String formatTime(double seconds);
