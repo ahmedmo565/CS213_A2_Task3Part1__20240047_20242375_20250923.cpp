@@ -339,8 +339,3 @@ void PlayerGUI::applyTheme()
 
     repaint();
 }
-
-
-
-
-
