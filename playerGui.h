@@ -1,4 +1,4 @@
-#pragma once
+##pragma once
 #include <JuceHeader.h>
 #include "PlayerAudio.h"
 #include "WaveForm.h"
@@ -28,12 +28,12 @@ private:
     juce::TextButton loadButton{ "Load Files" };
     juce::TextButton restartButton{ "Restart" };
     juce::TextButton stopButton{ "Stop" };
-    juce::TextButton gotostartButton{ "start" };
+    juce::TextButton gotostartButton{ "Start" };
     juce::TextButton muteButton{ "Mute" };
-    juce::TextButton repeatButton{ "repeat: off" };
-    juce::TextButton aButton{ "Set a" };
-    juce::TextButton bButton{ "Set b" };
-    juce::TextButton clearabButton{ "Clear a&b" };
+    juce::TextButton repeatButton{ "Repeat: Off" };
+    juce::TextButton aButton{ "Set A" };
+    juce::TextButton bButton{ "Set B" };
+    juce::TextButton clearabButton{ "Clear A&B" };
     juce::TextButton prevButton{ "Previous" };
     juce::TextButton nextButton{ "Next" };
     juce::TextButton clearPlaylistButton{ "Clear Playlist" };
