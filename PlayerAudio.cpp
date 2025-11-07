@@ -1,4 +1,4 @@
-﻿#include "PlayerAudio.h"
+#include"PlayerAudio.h"
 
 PlayerAudio::PlayerAudio()
     :thumbnailCache(5), audioThumbnail(512, formatManager, thumbnailCache)
