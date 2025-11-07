@@ -13,16 +13,12 @@ WaveForm::~WaveForm()
 
 void WaveForm::paint(juce::Graphics& g)
 {
-    g.fillAll(juce::Colours::darkgrey);
-    g.setColour(juce::Colours::cornflowerblue);
+    auto theme = playerAudio.getCurrentTheme();
+    g.fillAll(theme.backgroundColour.darker(0.5f));
+    g.setColour(theme.waveformColour);
 
     auto& thumbnail = playerAudio.getAudioThumbnail();
-
-    thumbnail.drawChannels(g,
-        getLocalBounds(),
-        0.0,
-        thumbnail.getTotalLength(),
-        1.0f);
+    thumbnail.drawChannels(g, getLocalBounds(), 0.0, thumbnail.getTotalLength(), 1.0f);
 
     double currentPos = playerAudio.getPosition();
     double totalLength = playerAudio.getLength();
@@ -30,10 +26,10 @@ void WaveForm::paint(juce::Graphics& g)
     if (totalLength > 0)
     {
         float lineX = (float)(currentPos / totalLength) * (float)getWidth();
-
         g.setColour(juce::Colours::white);
         g.drawVerticalLine((int)lineX, 0.0f, (float)getHeight());
     }
+
     auto currentSeconds = playerAudio.getPosition();
     auto totalSeconds = thumbnail.getTotalLength();
 
