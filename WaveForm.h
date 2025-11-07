@@ -1,8 +1,8 @@
 #pragma once
 #include <JuceHeader.h>
 #include "PlayerAudio.h"
-class WaveForm : public juce::Component,
-    public juce::Timer
+
+class WaveForm : public juce::Component, public juce::Timer
 {
 public:
     WaveForm(PlayerAudio& playerAudioRef);
