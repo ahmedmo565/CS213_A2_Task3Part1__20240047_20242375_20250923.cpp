@@ -1,25 +1,4 @@
-#include "playerGui.h"
-
-void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
-{
-    playerAudio.prepareToPlay(samplesPerBlockExpected, sampleRate);
-}
-
-void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
-{
-    playerAudio.getNextAudioBlock(bufferToFill);
-}
-
-void PlayerGUI::releaseResources()
-{
-    playerAudio.releaseResources();
-}
-
-void PlayerGUI::paint(juce::Graphics& g)
-{
-    auto theme = playerAudio.getCurrentTheme();
-    g.fillAll(theme.backgroundColour);
-}
+#include "PlayerGui.h"
 
 PlayerGUI::PlayerGUI() : playlistModel(*this), playerAudio(), waveForm(playerAudio)
 {
@@ -72,58 +51,95 @@ PlayerGUI::PlayerGUI() : playlistModel(*this), playerAudio(), waveForm(playerAud
     playlistBox.setModel(&playlistModel);
     addAndMakeVisible(playlistBox);
 
-    Theme yotsubaTheme;
-    yotsubaTheme.backgroundColour = juce::Colour(0xfffffaf0);
-    yotsubaTheme.buttonColour = juce::Colour(0xff8fa876);
-    yotsubaTheme.buttonTextColour = juce::Colour(0xff000000);
-    yotsubaTheme.sliderColour = juce::Colour(0xffe8d8c8);
-    yotsubaTheme.sliderThumbColour = juce::Colour(0xff8fa876);
-    yotsubaTheme.labelColour = juce::Colour(0xff000000);
-    yotsubaTheme.waveformColour = juce::Colour(0xff8fa876);
-    yotsubaTheme.playlistBackground = juce::Colour(0xfff5f0e8);
-    yotsubaTheme.playlistText = juce::Colour(0xff000000);
-    playerAudio.setTheme(yotsubaTheme);
+    Theme darkTheme;
+    darkTheme.backgroundColour = juce::Colour(0xff1e1e1e);
+    darkTheme.buttonColour = juce::Colour(0xff3c3c3c);
+    darkTheme.buttonTextColour = juce::Colour(0xffffffff);
+    darkTheme.sliderColour = juce::Colour(0xff4a4a4a);
+    darkTheme.sliderThumbColour = juce::Colour(0xff007acc);
+    darkTheme.labelColour = juce::Colour(0xffffffff);
+    darkTheme.waveformColour = juce::Colour(0xff007acc);
+    darkTheme.playlistBackground = juce::Colour(0xff252526);
+    darkTheme.playlistText = juce::Colour(0xffffffff);
+    playerAudio.setTheme(darkTheme);
 
     applyTheme();
     startTimer(100);
 }
 
+PlayerGUI::~PlayerGUI()
+{
+}
+
+void PlayerGUI::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
+{
+    playerAudio.prepareToPlay(samplesPerBlockExpected, sampleRate);
+}
+
+void PlayerGUI::getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill)
+{
+    playerAudio.getNextAudioBlock(bufferToFill);
+}
+
+void PlayerGUI::releaseResources()
+{
+    playerAudio.releaseResources();
+}
+
+void PlayerGUI::paint(juce::Graphics& g)
+{
+    auto theme = playerAudio.getCurrentTheme();
+    g.fillAll(theme.backgroundColour);
+}
+
 void PlayerGUI::resized()
 {
-    int y = 20;
-    loadButton.setBounds(20, y, 100, 40);
-    restartButton.setBounds(140, y, 80, 40);
-    stopButton.setBounds(240, y, 80, 40);
-    gotostartButton.setBounds(340, y, 80, 40);
-    muteButton.setBounds(440, y, 80, 40);
-    repeatButton.setBounds(560, y, 80, 40);
-    prevButton.setBounds(660, y, 80, 40);
-    nextButton.setBounds(760, y, 80, 40);
-    clearPlaylistButton.setBounds(860, y, 100, 40);
+    int buttonWidth = 100;
+    int buttonHeight = 30;
+    int margin = 10;
 
-    aButton.setBounds(20, 200, 80, 40);
-    bButton.setBounds(120, 200, 80, 40);
-    clearabButton.setBounds(220, 200, 100, 40);
+    int centerX = getWidth() / 2;
 
-    volumeSlider.setBounds(20, 260, getWidth() - 40, 30);
-    speedSlider.setBounds(20, 300, getWidth() - 40, 30);
+    loadButton.setBounds(centerX - buttonWidth / 2, 20, buttonWidth, buttonHeight);
 
-    positionSlider.setBounds(20, 340, getWidth() - 40, 20);
-    timeLabel.setBounds(getWidth() - 100, 320, 80, 20);
-    waveForm.setBounds(20, 370, getWidth() - 40, 100);
+    int secondRowY = 70;
+    int secondRowCenterX = centerX - (buttonWidth * 3 + margin * 2) / 2;
+
+    restartButton.setBounds(secondRowCenterX, secondRowY, buttonWidth, buttonHeight);
+    stopButton.setBounds(secondRowCenterX + buttonWidth + margin, secondRowY, buttonWidth, buttonHeight);
+    gotostartButton.setBounds(secondRowCenterX + (buttonWidth + margin) * 2, secondRowY, buttonWidth, buttonHeight);
+
+    int thirdRowY = 110;
+    int thirdRowCenterX = centerX - (buttonWidth * 3 + margin * 2) / 2;
+
+    muteButton.setBounds(thirdRowCenterX, thirdRowY, buttonWidth, buttonHeight);
+    repeatButton.setBounds(thirdRowCenterX + buttonWidth + margin, thirdRowY, buttonWidth, buttonHeight);
+    clearPlaylistButton.setBounds(thirdRowCenterX + (buttonWidth + margin) * 2, thirdRowY, buttonWidth, buttonHeight);
+
+    int fourthRowY = 150;
+
+    aButton.setBounds(20, fourthRowY, buttonWidth, buttonHeight);
+    bButton.setBounds(140, fourthRowY, buttonWidth, buttonHeight);
+    clearabButton.setBounds(260, fourthRowY, buttonWidth, buttonHeight);
+
+    prevButton.setBounds(getWidth() - 240, fourthRowY, buttonWidth, buttonHeight);
+    nextButton.setBounds(getWidth() - 120, fourthRowY, buttonWidth, buttonHeight);
+
+    volumeSlider.setBounds(20, 200, getWidth() - 40, 30);
+    speedSlider.setBounds(20, 240, getWidth() - 40, 30);
+
+    positionSlider.setBounds(20, 280, getWidth() - 40, 20);
+    timeLabel.setBounds(getWidth() - 100, 260, 80, 20);
+    waveForm.setBounds(20, 310, getWidth() - 40, 100);
 
     int playlistWidth = getWidth() / 2 - 30;
     int metadataWidth = getWidth() - playlistWidth - 60;
 
-    metadataLabel.setBounds(20, 460, metadataWidth, 25);
-    metadataDisplay.setBounds(20, 485, metadataWidth, 200);
+    metadataLabel.setBounds(20, 420, metadataWidth, 25);
+    metadataDisplay.setBounds(20, 445, metadataWidth, 200);
 
-    playlistLabel.setBounds(metadataWidth + 40, 460, playlistWidth, 25);
-    playlistBox.setBounds(metadataWidth + 40, 485, playlistWidth, 200);
-}
-
-PlayerGUI::~PlayerGUI()
-{
+    playlistLabel.setBounds(metadataWidth + 40, 420, playlistWidth, 25);
+    playlistBox.setBounds(metadataWidth + 40, 445, playlistWidth, 200);
 }
 
 void PlayerGUI::buttonClicked(juce::Button* button)
@@ -187,9 +203,9 @@ void PlayerGUI::buttonClicked(juce::Button* button)
         playerAudio.toggleRepeat();
         isRepeating = playerAudio.isRepeatEnabled();
         if (isRepeating)
-            repeatButton.setButtonText("repeat: on");
+            repeatButton.setButtonText("Repeat: On");
         else
-            repeatButton.setButtonText("repeat: off");
+            repeatButton.setButtonText("Repeat: Off");
     }
 
     if (button == &prevButton)
@@ -331,7 +347,7 @@ void PlayerGUI::applyTheme()
     metadataLabel.setColour(juce::Label::textColourId, theme.labelColour);
     playlistLabel.setColour(juce::Label::textColourId, theme.labelColour);
 
-    metadataDisplay.setColour(juce::TextEditor::backgroundColourId, theme.backgroundColour.darker(0.2f));
+    metadataDisplay.setColour(juce::TextEditor::backgroundColourId, theme.backgroundColour.darker());
     metadataDisplay.setColour(juce::TextEditor::textColourId, theme.labelColour);
     metadataDisplay.setColour(juce::TextEditor::outlineColourId, theme.sliderColour);
 
